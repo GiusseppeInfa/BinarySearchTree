@@ -6,8 +6,7 @@ import Exceptions.ItemDuplicated;
 import Exceptions.ItemNotFound;
 
 public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
-
-    // Definición de un nodo
+	
     class Node {
         public E data;
         public Node left;
@@ -34,36 +33,27 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         this.root = null;
     }
     
- // Método público para iniciar el recorrido Pre-Orden
     public void preOrderTraversal() {
         preOrder(root);
     }
-
-    // Método privado para realizar el recorrido Pre-Orden
+    
     private void preOrder(Node node) {
         if (node == null) {
-            return; // Si el nodo es null, no hacemos nada
+            return;
         }
         
-        // Procesamos el nodo actual (por ejemplo, imprimiéndolo)
         System.out.print(node.data + " ");
-        
-        // Recorrido del subárbol izquierdo
         preOrder(node.left);
-        
-        // Recorrido del subárbol derecho
         preOrder(node.right);
     }
     
- // Método público para iniciar el recorrido In-Orden
     public void inOrderTraversal() {
         inOrder(root);
     }
 
-    // Método privado para realizar el recorrido In-Orden
     private void inOrder(Node node) {
         if (node == null) {
-            return; // Si el nodo es null, no hacemos nada
+            return;
         } 
         inOrder(node.left);
         System.out.print(node.data + " ");
@@ -83,29 +73,26 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         System.out.print(node.data + " ");
     }
     
-    // Método para insertar un elemento
     @Override
     public void insert(E data) throws ItemDuplicated {
         root = insertRec(root, data);
     }
 
     private Node insertRec(Node root, E data) throws ItemDuplicated {
-        // Si el árbol está vacío, colocar el nodo como raíz
+    	
         if (root == null) {
             root = new Node(data);
             return root;
         }
 
-        // Si el dato ya existe, lanzar la excepción ItemDuplicated
         if (data.compareTo(root.data) == 0) {
             throw new ItemDuplicated("El elemento " + data + " ya existe en el árbol.");
         }
 
-        // Si el dato es menor que el nodo actual, ir al subárbol izquierdo
         if (data.compareTo(root.data) < 0) {
             root.left = insertRec(root.left, data);
         } 
-        // Si el dato es mayor, ir al subárbol derecho
+
         else {
             root.right = insertRec(root.right, data);
         }
@@ -113,32 +100,37 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         return root;
     }
 
-    // Método para eliminar un elemento
     @Override
-    public void delete(E data) throws ExceptionIsEmpty {
+    public void delete(E data) throws ExceptionIsEmpty{  //, ItemNotFound
         if (root == null) {
             throw new ExceptionIsEmpty("El árbol está vacío.");
         }
+        
+        /**
+        if (searchRec(root, data) == null) {
+        	throw new ItemNotFound("El elemento "+data+" no se encuentra en el árbol.");
+        }
+        **/
         root = deleteRec(root, data);
+
     }
 
     private Node deleteRec(Node root, E data) {
-        // Si el árbol está vacío
+
         if (root == null) {
             return root;
         }
-
-        // Si el dato es menor que la raíz, buscar en el subárbol izquierdo
+        
         if (data.compareTo(root.data) < 0) {
             root.left = deleteRec(root.left, data);
         } 
-        // Si el dato es mayor que la raíz, buscar en el subárbol derecho
+        
         else if (data.compareTo(root.data) > 0) {
             root.right = deleteRec(root.right, data);
         } 
-        // Si el dato es igual a la raíz, eliminar este nodo
+
         else {
-            // Nodo con solo un hijo o sin hijo
+
             if (root.left == null) {
                 return root.right;
             } else if (root.right == null) {
@@ -163,8 +155,7 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         }
         return minValue;
     }
-
-    // Método para buscar un elemento
+    
     @Override
     public E search(E data) throws ItemNotFound {
         Node result = searchRec(root, data);
@@ -175,18 +166,16 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
     }
 
     private Node searchRec(Node root, E data) {
-        // Si el árbol está vacío o hemos encontrado el dato
+    	
         if (root == null || data.compareTo(root.data) == 0) {
             return root;
         }
-
-        // Si el dato es menor que la raíz, buscar en el subárbol izquierdo
+        
         if (data.compareTo(root.data) < 0) {
             return searchRec(root.left, data);
+        }else{
+        	return searchRec(root.right, data);
         }
-
-        // Si el dato es mayor que la raíz, buscar en el subárbol derecho
-        return searchRec(root.right, data);
     }
     
     public E findMin() throws ItemNotFound {
@@ -206,8 +195,7 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         while (current.left != null) {
             current = current.left;
         }
-
-        // Validamos usando search()
+        
         return search(current.data); // Puede lanzar ItemNotFound si no lo encuentra
     }
     
@@ -220,8 +208,7 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         while (current.right != null) {
             current = current.right;
         }
-
-        // Validamos usando search()
+        
         return search(current.data); // Puede lanzar ItemNotFound si no lo encuentra
     }
 
@@ -231,7 +218,140 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         return root == null;
     }
     
-    // Método para representar el árbol como una cadena
+    @Override
+    public void destroyNodes() throws ExceptionIsEmpty {
+        if (root == null) {
+            throw new ExceptionIsEmpty("El árbol ya está vacío.");
+        }
+        root = null;
+    }
+    
+    @Override
+    public int countAllNodes() {
+        return countAll(root);
+    }
+    
+    public int countAll(Node node) {
+    	if(node == null)
+    		return 0;
+    	return 1 + countAll(node.left) + countAll(node.right);
+    }
+    
+    @Override
+    public int countNodes() {
+        return countNonLeafNodes(root);
+    }
+
+    private int countNonLeafNodes(Node node) {
+        if (node == null) 
+        	return 0;
+        if (node.left == null && node.right == null) 
+        	return 0;
+        return 1 + countNonLeafNodes(node.left) + countNonLeafNodes(node.right);
+    }
+
+    @Override
+    public int height(E x) {
+        Node node = searchRec(root, x);
+        if (node == null) 
+        	return -1;
+
+        java.util.Queue<Node> queue = new java.util.LinkedList<>();
+        queue.add(node);
+        int height = -1;
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size(); // Número de nodos en este nivel
+            height++; // Subimos un nivel
+
+            for (int i = 0; i < levelSize; i++) {
+                Node current = queue.poll();
+                if (current.left != null) queue.add(current.left);
+                if (current.right != null) queue.add(current.right);
+            }
+        }
+
+        return height;
+    }
+    
+    @Override
+    public int amplitude(int targetLevel) {
+        if (root == null || targetLevel < 0) 
+        	return 0;
+
+        java.util.Queue<Node> queue = new java.util.LinkedList<>();
+        queue.add(root);
+        int currentLevel = 0;
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size(); // Nodos en este nivel
+
+            if (currentLevel == targetLevel) {
+                return levelSize; // La amplitud
+            }
+
+            // Avanzamos al siguiente nivel
+            for (int i = 0; i < levelSize; i++) {
+                Node current = queue.poll();
+                if (current.left != null) queue.add(current.left);
+                if (current.right != null) queue.add(current.right);
+            }
+
+            currentLevel++;
+        }
+
+        return 0; // Nivel no existe
+    }
+    
+    public int areaBST() {
+        if (root == null) return 0;
+
+        java.util.Queue<Node> queue = new java.util.LinkedList<>();
+        queue.add(root);
+        int height = -1;
+        int leafCount = 0;
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            height++;
+
+            for (int i = 0; i < levelSize; i++) {
+                Node current = queue.poll();
+                
+                if (current.left == null && current.right == null) {
+                    leafCount++;
+                }
+                if (current.left != null) queue.add(current.left);
+                if (current.right != null) queue.add(current.right);
+            }
+        }
+
+        return height * leafCount;
+    }
+
+    
+    public void parenthesize() {
+        System.out.println(parenthesize(root));
+    }
+
+    private String parenthesize(Node node) {
+        if (node == null) return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(node.data);
+        if (node.left != null || node.right != null) {
+            sb.append("(");
+            sb.append(parenthesize(node.left));
+            sb.append(",");
+            sb.append(parenthesize(node.right));
+            sb.append(")");
+        }
+        return sb.toString();
+    }
+
+    public void drawBST() {
+        System.out.println(this.toString());
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -242,16 +362,10 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
     private void toStringRec(Node node, StringBuilder sb, String indent, boolean isLast) {
         if (node != null) {
             sb.append(indent);
-            if (isLast) {
-                sb.append("└── ");
-                indent += "    ";
-            } else {
-                sb.append("├── ");
-                indent += "|   ";
-            }
+            sb.append(isLast ? "└── " : "├── ");
             sb.append(node.data).append("\n");
-            toStringRec(node.left, sb, indent, false);
-            toStringRec(node.right, sb, indent, true);
+            toStringRec(node.left, sb, indent + (isLast ? "    " : "│   "), false);
+            toStringRec(node.right, sb, indent + (isLast ? "    " : "│   "), true);
         }
     }
 }
